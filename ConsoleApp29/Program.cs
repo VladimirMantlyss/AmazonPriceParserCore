@@ -581,8 +581,8 @@ namespace CheckPrice
                     worksheet.Cells[row, 1].Value = product.productType;
                     worksheet.Cells[row, 2].Value = product.price;
                     if (product.diff > 0)
-                    {
-                        worksheet.Cells[row, 3].Value = "+" + product.diff;
+                    {                      
+                        worksheet.Cells[row, 3].Value = "+" + product.diff ;
                         worksheet.Cells[row, 3].Style.Fill.PatternType = ExcelFillStyle.Solid;
                         worksheet.Cells[row, 3].Style.Fill.BackgroundColor.SetColor(Color.Red);
                     }
@@ -640,7 +640,7 @@ namespace CheckPrice
                         a.name = productList[row - 2].name;
                         a.productType = productList[row - 2].productType;
 
-                        a.diff = productList[row - 2].price - Double.Parse(worksheet.Cells[row, 2].Value.ToString());
+                        a.diff =Math.Round( productList[row - 2].price - Double.Parse(worksheet.Cells[row, 2].Value.ToString()), 2);
 
                         productList[row - 2] = a;
                     }
