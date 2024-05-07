@@ -437,7 +437,9 @@ namespace CheckPrice
             product.productType = productType;
 
             WebPage page = browser.NavigateToPage(new Uri(link));
-            string pattern = @"<span class=""a-offscreen"">€([^<]+)</span>";
+            //await Console.Out.WriteLineAsync(page.Content);
+            //string pattern = @"<span class=""a-offscreen"">€([^<]+)</span>";
+            string pattern = @"<input type=""hidden"" id=""twister-plus-price-data-price"" value=""([^<]+)"" />";
             Regex regex = new Regex(pattern);
             Match match = regex.Match(page.Content);
 
@@ -448,7 +450,7 @@ namespace CheckPrice
                 Console.WriteLine($"not parced: {price}");
                 price = new string(price.Where(c => char.IsDigit(c) || c == '.' || c == ',').ToArray());
                 price = price.Replace(',', '.');
-                Console.WriteLine($"#DEBUG: price {price}");
+                //Console.WriteLine($"#DEBUG: price {price}");
                 double priceDouble;
 
                 if (double.TryParse(price, out priceDouble))
@@ -461,13 +463,13 @@ namespace CheckPrice
                             if (price[i] == '.')
                             {
                                 price = price.Remove(i, 1);
-                                Console.WriteLine($"#DEBUG2: With remove {price}");
+                               // Console.WriteLine($"#DEBUG2: With remove {price}");
                                 break;
                             }
                         }
                         
                         priceDouble = Double.Parse(price);
-                    Console.WriteLine($"#DEBUG3: double value {priceDouble}");
+                        //Console.WriteLine($"#DEBUG3: double value {priceDouble}");
                     }
 
 
@@ -477,6 +479,45 @@ namespace CheckPrice
             else
             {
                 await Console.Out.WriteLineAsync("Regex match failed.");
+                pattern = @"<span class=""a-offscreen"">€([^<]+)</span>";
+                regex = new Regex(pattern);
+                match = regex.Match(page.Content);
+                if (match.Success)
+                {
+                    string price = match.Groups[1].Value;
+                    Console.WriteLine($"not parced: {price}");
+                    price = new string(price.Where(c => char.IsDigit(c) || c == '.' || c == ',').ToArray());
+                    price = price.Replace(',', '.');
+                    //Console.WriteLine($"#DEBUG: price {price}");
+                    double priceDouble;
+
+                    if (double.TryParse(price, out priceDouble))
+                        Console.WriteLine("Parced correctly");
+                    else
+                    {
+                        Console.WriteLine("provided special parsing");
+                        for (int i = 0; i < price.Length; i++)
+                        {
+                            if (price[i] == '.')
+                            {
+                                price = price.Remove(i, 1);
+                                // Console.WriteLine($"#DEBUG2: With remove {price}");
+                                break;
+                            }
+                        }
+
+                        priceDouble = Double.Parse(price);
+                        //Console.WriteLine($"#DEBUG3: double value {priceDouble}");
+                    }
+
+
+                    await Console.Out.WriteLineAsync($"Matched value: {priceDouble}");
+                    product.price = priceDouble;
+                }
+                else
+                {
+                    await Console.Out.WriteLineAsync("Total Regex match failed.");
+                }
             }
 
             productList.Add(product);
@@ -640,7 +681,7 @@ namespace CheckPrice
                         a.name = productList[row - 2].name;
                         a.productType = productList[row - 2].productType;
 
-                        a.diff =Math.Round( productList[row - 2].price - Double.Parse(worksheet.Cells[row, 2].Value.ToString()), 2);
+                        a.diff = Math.Round( productList[row - 2].price - Double.Parse(worksheet.Cells[row, 2].Value.ToString()), 2);
 
                         productList[row - 2] = a;
                     }
